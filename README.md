@@ -21,5 +21,6 @@
 `pip install -r requirements.txt`
 5. 安裝ffmpeg
 ## 開始使用
-1. 
+1. 執行run_main.bat這個檔案
+
 
