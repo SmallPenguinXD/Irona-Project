@@ -15,6 +15,6 @@
 ## 如何使用
 1. 下載Ollama
 2. 下載程式碼
-3. 安裝模組(還在做requirements.txt 笑死)  
+3. 安裝模組(應該寫好了:>)  
 `pip install -r requirements.txt`
 
