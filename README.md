@@ -12,9 +12,14 @@
 - ~~上台清交成~~
 ## 快速使用
 ~~你真的覺得有嗎~~
-## 如何使用
+## 環境配置
 1. 下載Ollama
 2. 下載程式碼
-3. 安裝模組(應該寫好了:>)  
+3. 安裝模組，請先安裝Pytorch和其核心的依賴  
+`pip install torch torchvision torchaudio`
+4. 接下來安裝其餘模組  
 `pip install -r requirements.txt`
+5. 安裝ffmpeg
+## 開始使用
+1. 
 
