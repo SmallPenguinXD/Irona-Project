@@ -20,7 +20,10 @@
 4. 接下來安裝其餘模組  
 `pip install -r requirements.txt`
 5. 安裝ffmpeg
+6. 須安裝large-v3,qwen 8b,qwen 30b如果沒有，程式應該會幫你裝
 ## 開始使用
 1. 執行run_main.bat這個檔案
+## 後記
+目前這東西就是狗屎
 
 
