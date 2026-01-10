@@ -1,8 +1,9 @@
-pip install pygame
-pip install PyAutoGUI
-pip install keyboard
-pip install ollama
-pip install openai-whisper
-pip install coqui-tts
-pip install Wave
-pip install PyAudio
+pygame
+PyAutoGUI
+keyboard
+ollama
+openai-whisper
+coqui-tts
+Wave
+PyAudio
+threading

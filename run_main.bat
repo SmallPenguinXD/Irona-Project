@@ -1,3 +1,3 @@
 @echo off
-python "main.py"
+python "locate_gui.py"
 pause

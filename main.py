@@ -13,6 +13,8 @@ import wave
 import time as tm
 import pyaudio
 import pygame
+import threading
+from fsm import forget_sm
 os.getcwd()
 print(torch.cuda.is_available())
 print(torch.__version__)
@@ -26,15 +28,8 @@ t_prompt = ""
 
 #AI-Chating Class
 class ai_chating():
-    #smf
-    async def forget_sm(file_name):
-        a = 9
-        b = 21
-        ttfsm = random.randint(a, b)
-        await asyncio.sleep(ttfsm)
-        os.remove(f"{file_name}")
     #Reocrding
-    def record_vc():
+    def record_vc(self):
         p = pyaudio.PyAudio()
         print("start recording")
         stream = p.open(format=pyaudio.paInt32, channels=1, rate=16000, frames_per_buffer=1024, input=True)
@@ -55,8 +50,8 @@ class ai_chating():
         awav.writeframes(b"".join(frames))
         awav.close()
     #AI-ASR
-    def ai_model_asr():
-        default_model = "large-v3"
+    def ai_model_asr(self,default_model):        
+        default_model = default_model
         st_asr_time = tm.time()
         if(torch.cuda.is_available() == True):
             devide_to_run_asr = "cuda"
@@ -83,25 +78,21 @@ class ai_chating():
                     print("prompt is too short")
                 else:
                     print("prompt is enough")
-        else:
-            print("No file founded")
-        pre_prompt = ""
-        pre_prompt = os.open(rf"brain\\{file_name}",os.O_RDWR)
-        t_prompt = os.read(pre_prompt,lens1)
-        return t_prompt
+                    return content1
     #use voice input or text input
-    def vc_or_text(self):
-        qe = input_word.get()
+    def vc_or_text(self,ipg,asr_model):
+        qe = str(ipg)
         if(len(qe) > 0):
             print(len(qe))
             prompt = str(qe)
         else:
             print(len(qe))
-            prompt = str(self.ai_model_asr())
+            prompt = str(self.ai_model_asr(default_model = asr_model))
         return prompt
     #ai reply and write memory
-    def ai_chat(self):
-        prompt = self.vc_or_text()
+    def ai_chat(self,ipg,b1g,asr_model):
+        prompt = self.vc_or_text(ipg = ipg,asr_model = asr_model)
+        b1r = b1g
         ai_vc_cl_file = r"voice_clone_wav\input.wav"
         st_asr_time = tm.time()
         if(torch.cuda.is_available() == True):
@@ -116,7 +107,7 @@ class ai_chating():
         print("start...")
         print(f"{cr_prompt}\n{brain_memory}\n{brain_basic_memory}")
         rr_reply = ""
-        reply = ollama.generate(model="qwen3:30b",system=f"""{cr_prompt}\n{brain_memory}\n{brain_basic_memory}""",prompt=prompt,options={"temperature":0.8,"num_ctx":4096})
+        reply = ollama.generate(model=f"{b1r}",system=f"""{cr_prompt}\n{brain_memory}\nHistory:{brain_basic_memory}""",prompt=prompt,options={"temperature":0.8,"num_ctx":4096})
         rr_reply = reply["response"]
         rrr_reply = str(rr_reply)
         if(len(rrr_reply) <= 0):
@@ -135,38 +126,19 @@ class ai_chating():
         pygame.mixer.init()
         pygame.mixer.music.load(f"{ask_ddmmyy}.wav")
         pygame.mixer.music.play()
+        time.sleep(5)
         sb = self.read_docs(file_name="short_bb.txt")
         q1 = rrr_reply
         q2 = "Please evaluate whether this content is worthy of long-term memory,Score 0–1 on the following scale:Task relevance,Novelty,Emotional intensity,Generalizability,Total highest is 4.0,and just reply total score(like 2.0 2.5 1.0 3.7)"
-        los = ollama.generate(model="qwen3:8b",system=f"""Background Information:{sb}""",prompt=f"""{q2} question(only answer it):{q1}""")
+        los = ollama.generate(model="qwen3:4b",system=f"""Background Information:{sb}""",prompt=f"""{q2} question(only answer it):{q1}""")
         print(los["response"])
         ts = float(los["response"])
         if(ts >= 3.0):
             with open(r"brain\long_memory.txt","a",encoding="utf-8") as lmf:
-                lmf.write(rf"Time:{ask_ddmmyy};Penguin(Questioner):{prompt};Yourself:{rrr_reply}\n")
+                lmf.write(rf"Penguin(Questioner):{prompt};Yourself:{rrr_reply}\n")
                 lmf.close()
         if(ts < 3.0):
             with open(rf"brain\short_memory\{ask_ddmmyy}_short_memory.txt","w",encoding="utf-8") as smf:
-                smf.write(f"Time:{ask_ddmmyy};Penguin(Questioner):{prompt};Yourself:{rrr_reply}\n")
+                smf.write(f"Penguin(Questioner):{prompt};Yourself:{rrr_reply}\n")
                 smf.close()
-                self.forget_sm(file_name=rf"brain\short_memory\{ask_ddmmyy}_short_memory.txt")           
-if __name__ == "__main__":
-    window1 = tk.Tk()
-    weight_w1 ,height_w1 = pyautogui.size()
-    weight_w2 ,height_w2 = weight_w1//2 ,height_w1//2 
-    print(weight_w2,height_w2)
-    window1.geometry(f'{weight_w2}x{height_w2}')
-    s_btn_aiasr = tk.Button(window1,text="開始AI-ASR",command=ai_chating().ai_model_asr)
-    s_btn_aiasr.pack()
-    s_btn_aiasr = tk.Button(window1,text="AI聊天",command=ai_chating().ai_chat)
-    s_btn_aiasr.pack()
-    s_btn_aiasr = tk.Button(window1,text="錄音",command=ai_chating().record_vc)
-    s_btn_aiasr.pack()
-    tk.Label(window1,text="請輸入文本來輸入聊天內容").pack()
-    input_word = tk.Entry(window1)
-    input_word.pack()
-    s_btn_getin = tk.Button(window1,text="使用文字聊天(請記得在上面的欄位輸入內容)",command=ai_chating().ai_chat)
-    s_btn_getin.pack()
-    window1.config(bg="aqua")
-    window1.mainloop()
-        
+                forget_sm(ask_ddmmyy=f"{ask_ddmmyy}")
