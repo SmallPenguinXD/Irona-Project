@@ -32,7 +32,7 @@ class gui_class():
         tk.Label(self.window1,text="請輸入文本來輸入聊天內容").pack()
         input_word = tk.Entry(self.window1)
         input_word.pack()
-        s_btn_getin = tk.Button(self.window1,text="使用文字聊天(請記得在上面的欄位輸入內容)",command=lambda: main.ai_chating().ai_chat(ipg = input_word.get(),b1g = b1.get()))
+        s_btn_getin = tk.Button(self.window1,text="使用文字聊天(請記得在上面的欄位輸入內容)",command=lambda: main.ai_chating().ai_chat(ipg = input_word.get(),b1g = b1.get(),asr_model = b2.get()))
         s_btn_getin.pack()
         v1l = ["qwen3:30b","qwen3:8b","qwen3:4b"]
         v2l = ['tiny.en', 'tiny', 'base.en', 'base', 'small.en', 'small', 'medium.en', 'medium', 'large-v1', 'large-v2', 'large-v3', 'large', 'large-v3-turbo', 'turbo']

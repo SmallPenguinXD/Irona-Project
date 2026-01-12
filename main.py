@@ -70,7 +70,7 @@ class ai_chating():
     def read_docs(self,file_name):
         if(os.path.exists(rf"brain\\{file_name}")):
             print("File exists")
-            with open(rf"brain\\{file_name}","r") as files_need_deal:
+            with open(rf"brain\\{file_name}","r",encoding="utf-8") as files_need_deal:
                 content1 = files_need_deal.read()
                 lens1 = len(content1)
                 print(lens1)
