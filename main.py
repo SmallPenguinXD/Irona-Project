@@ -15,15 +15,12 @@ import pyaudio
 import pygame
 import threading
 from fsm import forget_sm
+import locate_gui
+import ai_tts_for_main as ats
 os.getcwd()
 print(torch.cuda.is_available())
 print(torch.__version__)
 print(torch.version.cuda)
-os.getcwd()
-print(torch.cuda.is_available())
-print(torch.__version__)
-print(torch.version.cuda)
-import random
 t_prompt = ""
 
 #AI-Chating Class
@@ -90,7 +87,7 @@ class ai_chating():
             prompt = str(self.ai_model_asr(default_model = asr_model))
         return prompt
     #ai reply and write memory
-    def ai_chat(self,ipg,b1g,asr_model):
+    def ai_chat(self,ipg,b1g,asr_model,tts_no_model):
         prompt = self.vc_or_text(ipg = ipg,asr_model = asr_model)
         b1r = b1g
         ai_vc_cl_file = r"voice_clone_wav\input.wav"
@@ -107,7 +104,8 @@ class ai_chating():
         print("start...")
         print(f"{cr_prompt}\n{brain_memory}\n{brain_basic_memory}")
         rr_reply = ""
-        reply = ollama.generate(model=f"{b1r}",system=f"""{cr_prompt}\n{brain_memory}\nHistory:{brain_basic_memory}""",prompt=prompt,options={"temperature":0.8,"num_ctx":4096})
+        language = tts_no_model
+        reply = ollama.generate(model=f"{b1r}",system=f"""Reply in {language},{cr_prompt}\n{brain_memory}\nHistory:{brain_basic_memory}""",prompt=prompt,options={"temperature":0.8,"num_ctx":4096})
         rr_reply = reply["response"]
         rrr_reply = str(rr_reply)
         if(len(rrr_reply) <= 0):
@@ -118,15 +116,13 @@ class ai_chating():
         ask_ddmmyy = ask_ddmmyy.replace(":", "_")
         ask_ddmmyy = ask_ddmmyy.replace(" ", "_")
         print(ask_ddmmyy, prompt,"|", rr_reply)
-        tts = TTS("tts_models/en/vctk/vits",vocoder_name="vocoder_models/en/librispeech100/wavlm-hifigan_prematched")
-        tts.tts_to_file(rrr_reply,file_path="vc_op_wav.wav",speaker="p225")
+        ats.judge.judgemar(tts_no_model = tts_no_model, atext = rrr_reply)
         tts2 = TTS("voice_conversion_models/multilingual/multi-dataset/openvoice_v2")
         tts2.voice_conversion_to_file(source_wav ="vc_op_wav.wav", target_wav=ai_vc_cl_file,file_path=f"{ask_ddmmyy}.wav")
         pygame.init()
         pygame.mixer.init()
         pygame.mixer.music.load(f"{ask_ddmmyy}.wav")
         pygame.mixer.music.play()
-        time.sleep(5)
         sb = self.read_docs(file_name="short_bb.txt")
         q1 = rrr_reply
         q2 = "Please evaluate whether this content is worthy of long-term memory,Score 0–1 on the following scale:Task relevance,Novelty,Emotional intensity,Generalizability,Total highest is 4.0,and just reply total score(like 2.0 2.5 1.0 3.7)"

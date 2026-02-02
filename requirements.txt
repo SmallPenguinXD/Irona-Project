@@ -7,3 +7,5 @@ coqui-tts
 Wave
 PyAudio
 threading
+coqui-tts[ja]
+coqui-tts[zh]
